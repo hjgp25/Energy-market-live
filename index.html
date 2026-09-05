@@ -211,8 +211,8 @@
     <section class="hero">
       <div class="hero-copy">
         <div class="eyebrow">Live energy intelligence</div>
-        <h1>Markets meet the rig floor.</h1>
-        <p class="lede">WTI, Brent and natural gas alongside the weekly U.S. rig count, drilling mix, basin activity and an interactive state-by-state rig map.</p>
+        <h1>Oil, Gas &amp; Rig Counts.</h1>
+        <p class="lede">Live oil and gas markets, energy stocks, weekly U.S. rig counts, basin activity and an interactive state-by-state rig map.</p>
       </div>
       <div class="hero-price">
         <tv-single-ticker symbol="TVC:USOIL" theme="dark" transparent>
@@ -224,6 +224,21 @@
     <div class="tape">
       <tv-ticker-tape symbols="TVC:USOIL,TVC:UKOIL,OANDA:NATGASUSD" item-size="compact" theme="dark" transparent>
         <div class="status-message">Loading market ticker…</div>
+      </tv-ticker-tape>
+    </div>
+
+    <div class="section-title" style="margin-top:16px;margin-bottom:8px">
+      <h2>Top oil &amp; gas stocks</h2>
+      <div class="section-meta">Integrated majors · E&amp;P · oilfield services · midstream · refining</div>
+    </div>
+
+    <div class="tape" aria-label="Oil and gas stock ticker">
+      <tv-ticker-tape
+        symbols="NYSE:XOM,NYSE:CVX,NYSE:COP,NYSE:OXY,NYSE:EOG,NASDAQ:FANG,NYSE:SLB,NYSE:HAL,NASDAQ:BKR,NYSE:NOV,NYSE:KMI,NYSE:WMB,NYSE:MPC,NYSE:VLO,NYSE:PSX"
+        item-size="compact"
+        theme="dark"
+        transparent>
+        <div class="status-message">Loading energy stocks…</div>
       </tv-ticker-tape>
     </div>
 
@@ -320,7 +335,7 @@
     <footer class="foot">
       <div>ENERGY MARKET LIVE · PRO</div>
       <div class="note">
-        Price widgets: TradingView. Rig-count source: Baker Hughes, with state/basin presentation from public Baker Hughes-derived datasets.
+        Price and energy-equity widgets: TradingView. Rig-count source: Baker Hughes, with state/basin presentation from public Baker Hughes-derived datasets.
         Exact individual rig GPS coordinates are not represented by the state map. Market data may be real-time, delayed or end-of-day depending on underlying data rights.
         <a class="source-link" href="https://rigcount.bakerhughes.com/" target="_blank" rel="noopener">Baker Hughes source ↗</a>
       </div>
