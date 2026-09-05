@@ -1,25 +1,217 @@
 {
   "source": "Baker Hughes Rig Count",
-  "source_url": "https://rigcount.bakerhughes.com/",
-  "fetched_at": "2026-09-04T18:30:00-05:00",
+  "report_date": "September 4, 2026",
+  "state_report_date": "August 28, 2026",
+  "basin_report_date": "September 4, 2026",
+  "fetched_at": "2026-09-05T06:00:00Z",
   "us": {
-    "last_count": "September 4, 2026",
     "count": 588,
     "change": 0
   },
   "canada": {
-    "last_count": "September 4, 2026",
     "count": 204,
     "change": -7
   },
-  "north_america": {
-    "last_count": "September 4, 2026",
-    "count": 792,
-    "change": -7
+  "drill_for": {
+    "oil": {
+      "count": 449,
+      "change": 2
+    },
+    "gas": {
+      "count": 130,
+      "change": -2
+    },
+    "miscellaneous": {
+      "count": 9,
+      "change": 0
+    }
   },
-  "international": {
-    "last_count": "August 2026",
-    "count": 1102,
-    "change": 6
-  }
+  "trajectory": {
+    "horizontal": {
+      "count": 535,
+      "change": 0
+    },
+    "directional": {
+      "count": 43,
+      "change": null
+    },
+    "vertical": {
+      "count": 10,
+      "change": null
+    }
+  },
+  "location": {
+    "land": {
+      "count": 577,
+      "change": null
+    },
+    "offshore": {
+      "count": 8,
+      "change": -1
+    },
+    "inland_waters": {
+      "count": 3,
+      "change": null
+    }
+  },
+  "basins": [
+    {
+      "name": "Permian",
+      "count": 268,
+      "change": 1
+    },
+    {
+      "name": "Haynesville",
+      "count": 56,
+      "change": -1
+    },
+    {
+      "name": "Eagle Ford",
+      "count": 50,
+      "change": 0
+    },
+    {
+      "name": "Williston",
+      "count": 27,
+      "change": 0
+    },
+    {
+      "name": "Marcellus",
+      "count": 23,
+      "change": -1
+    },
+    {
+      "name": "Cana Woodford",
+      "count": 21,
+      "change": 1
+    },
+    {
+      "name": "Granite Wash",
+      "count": 18,
+      "change": -1
+    },
+    {
+      "name": "DJ-Niobrara",
+      "count": 11,
+      "change": 1
+    },
+    {
+      "name": "Utica",
+      "count": 10,
+      "change": 0
+    },
+    {
+      "name": "Ardmore Woodford",
+      "count": 2,
+      "change": 0
+    },
+    {
+      "name": "Arkoma Woodford",
+      "count": 1,
+      "change": 0
+    },
+    {
+      "name": "Barnett",
+      "count": 1,
+      "change": 0
+    }
+  ],
+  "states": [
+    {
+      "code": "TX",
+      "name": "Texas",
+      "count": 282,
+      "change": 1
+    },
+    {
+      "code": "NM",
+      "name": "New Mexico",
+      "count": 95,
+      "change": -1
+    },
+    {
+      "code": "OK",
+      "name": "Oklahoma",
+      "count": 51,
+      "change": 0
+    },
+    {
+      "code": "LA",
+      "name": "Louisiana",
+      "count": 36,
+      "change": 1
+    },
+    {
+      "code": "ND",
+      "name": "North Dakota",
+      "count": 24,
+      "change": 0
+    },
+    {
+      "code": "PA",
+      "name": "Pennsylvania",
+      "count": 16,
+      "change": 0
+    },
+    {
+      "code": "WY",
+      "name": "Wyoming",
+      "count": 15,
+      "change": 1
+    },
+    {
+      "code": "UT",
+      "name": "Utah",
+      "count": 13,
+      "change": 0
+    },
+    {
+      "code": "AK",
+      "name": "Alaska",
+      "count": 12,
+      "change": 0
+    },
+    {
+      "code": "CO",
+      "name": "Colorado",
+      "count": 12,
+      "change": -1
+    },
+    {
+      "code": "OH",
+      "name": "Ohio",
+      "count": 9,
+      "change": -1
+    },
+    {
+      "code": "WV",
+      "name": "West Virginia",
+      "count": 9,
+      "change": 0
+    },
+    {
+      "code": "CA",
+      "name": "California",
+      "count": 7,
+      "change": 0
+    },
+    {
+      "code": "MT",
+      "name": "Montana",
+      "count": 3,
+      "change": 0
+    },
+    {
+      "code": "NV",
+      "name": "Nevada",
+      "count": 2,
+      "change": 0
+    },
+    {
+      "code": "MI",
+      "name": "Michigan",
+      "count": 1,
+      "change": 0
+    }
+  ]
 }

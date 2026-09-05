@@ -2,457 +2,529 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#110e0c">
-  <meta name="description" content="Live WTI, Brent, Natural Gas and latest Baker Hughes rig count.">
-  <title>Energy Market Live</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d10">
+  <meta name="description" content="Live energy market dashboard: WTI, Brent, natural gas and U.S. rig activity.">
+  <title>Energy Market Live — Pro Dashboard</title>
 
-  <!-- TradingView's current Web Component widgets -->
   <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
   <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-single-ticker.js"></script>
   <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-mini-chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 
   <style>
     :root{
-      color-scheme: dark;
-      --bg:#110e0c;
-      --panel:#1b1613;
-      --panel-2:#211a16;
-      --border:rgba(184,149,101,.22);
-      --gold:#b89565;
-      --cream:#f2eee7;
-      --muted:#a99d92;
-      --muted2:#746b64;
-      --green:#5dc28d;
-      --red:#d96772;
-      --tv-widget-accent-color:#b89565;
-      --tv-widget-text-color:#f2eee7;
+      color-scheme:dark;
+      --bg:#0b0d10;
+      --bg2:#101318;
+      --panel:#12161c;
+      --panel2:#171c23;
+      --line:#262d36;
+      --line2:#343d48;
+      --text:#f4f6f8;
+      --muted:#9aa4b1;
+      --muted2:#6e7885;
+      --accent:#d7a65e;
+      --accent2:#7ea2c8;
+      --green:#65c995;
+      --red:#ef7882;
+      --blue:#7ca6d3;
+      --tv-widget-accent-color:#d7a65e;
+      --tv-widget-text-color:#f4f6f8;
       --tv-widget-background-color:transparent;
       --tv-widget-font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
+
     *{box-sizing:border-box}
     html{background:var(--bg);scroll-behavior:smooth}
     body{
       margin:0;
       background:
-        radial-gradient(circle at 86% -10%,rgba(115,48,46,.18),transparent 34rem),
+        radial-gradient(circle at 85% -10%,rgba(215,166,94,.08),transparent 32rem),
+        radial-gradient(circle at -10% 25%,rgba(72,111,151,.08),transparent 34rem),
         var(--bg);
-      color:var(--cream);
+      color:var(--text);
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       line-height:1.45;
     }
+
     a{color:inherit}
-    .shell{width:min(1120px,100%);margin:0 auto;padding:18px 16px 56px}
-    .rule{height:2px;background:linear-gradient(90deg,var(--gold),rgba(184,149,101,.06));margin:4px 0 13px}
-    .eyebrow{
-      display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
-      color:#bd6e75;
-      font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
-      letter-spacing:.09em;text-transform:uppercase;
+    button{font:inherit}
+    .wrap{width:min(1240px,100%);margin:auto;padding:18px 18px 56px}
+    .topbar{
+      min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+      border-bottom:1px solid var(--line);padding-bottom:14px;
     }
-    .eyebrow .right{color:#817871}
-    header{padding:20px 0 18px;border-bottom:1px solid var(--border)}
-    .headrow{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .mark{
+      width:36px;height:36px;border:1px solid var(--line2);display:grid;place-items:center;
+      font-weight:900;letter-spacing:-.04em;background:linear-gradient(135deg,#1b2027,#0d1014);
+    }
+    .brandname{font-weight:850;letter-spacing:.13em;text-transform:uppercase;font-size:13px}
+    .brandsub{color:var(--muted2);font-size:11px;margin-top:2px}
+    .live{
+      display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);
+      border-radius:999px;padding:8px 11px;color:#cbd2d9;font-size:11px;font-weight:800;
+      letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+    }
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(101,201,149,.08)}
+
+    .hero{padding:28px 0 20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:16px;align-items:stretch}
+    .hero-copy,.hero-price{border:1px solid var(--line);background:rgba(18,22,28,.85)}
+    .hero-copy{padding:28px}
+    .eyebrow{color:var(--accent);font:800 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
     h1{
-      margin:0;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(44px,8vw,78px);
-      line-height:.92;
-      letter-spacing:-.04em;
+      margin:10px 0 10px;max-width:760px;font-size:clamp(40px,7vw,76px);line-height:.95;
+      letter-spacing:-.055em;font-weight:860;
     }
-    .subtitle{
-      margin:12px 0 0;
-      color:var(--muted);
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(17px,2.7vw,24px);
-      font-style:italic;
+    .lede{margin:0;max-width:62ch;color:#b7c0ca;font-size:clamp(15px,2vw,18px)}
+    .hero-price{display:flex;align-items:center;padding:14px;min-height:180px}
+    tv-single-ticker{display:block;width:100%}
+
+    .tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 0;margin-bottom:24px;overflow:hidden}
+    tv-ticker-tape{display:block;width:100%}
+
+    .section-title{display:flex;justify-content:space-between;gap:14px;align-items:end;flex-wrap:wrap;margin:30px 0 12px}
+    .section-title h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.11em}
+    .section-meta{color:var(--muted2);font-size:12px}
+
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+    .kpi{
+      min-width:0;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel2),var(--panel));
+      padding:15px;
     }
-    .status{
-      display:inline-flex;align-items:center;gap:9px;
-      border:1px solid rgba(184,149,101,.35);
-      border-radius:999px;
-      padding:10px 13px;
-      color:#d9cdbf;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      background:rgba(255,255,255,.02);
-    }
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(93,194,141,.10)}
-    .hero{
-      margin:20px 0 16px;
-      display:grid;
-      grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
-      gap:14px;
-    }
-    .hero-copy,.hero-ticker{
-      min-width:0;
-      border:1px solid var(--border);
-      background:rgba(29,23,20,.82);
-    }
-    .hero-copy{padding:22px}
-    .smallcap{
-      color:#9f9287;
-      font:700 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-    .hero-copy h2{
-      margin:8px 0 9px;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(30px,4.8vw,48px);
-      line-height:1.02;
-    }
-    .hero-copy p{margin:0;color:#b8ada3;max-width:60ch}
-    .hero-ticker{padding:14px;display:flex;align-items:center;min-height:155px}
-    tv-single-ticker{width:100%}
-    .placeholder{padding:24px;color:var(--muted);font-size:14px}
-    .tape{
-      margin:0 0 22px;
-      padding:7px 0;
-      border-top:1px solid rgba(184,149,101,.15);
-      border-bottom:1px solid rgba(184,149,101,.15);
-      overflow:hidden;
-    }
-    tv-ticker-tape{width:100%}
-    .section-head{
-      display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;
-      margin:27px 0 12px;
-    }
-    .section-head h3{
-      margin:0;
-      color:#a79a8f;
-      font:700 12px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;
-      letter-spacing:.08em;text-transform:uppercase;
-    }
-    .updated{color:#827870;font-size:12px}
-    .market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-    .market-card{
-      min-width:0;
-      border:1px solid var(--border);
-      background:linear-gradient(180deg,rgba(34,27,23,.98),rgba(24,20,17,.98));
-    }
-    .market-head{padding:14px 14px 5px}
-    .market-name,.rig-label{
-      color:#d2c6ba;
-      font:800 10px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;
-      letter-spacing:.08em;text-transform:uppercase;
-    }
-    .market-source,.rig-source{
-      margin-top:4px;
-      color:var(--muted2);
-      font:600 9px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;
-      text-transform:uppercase;
-    }
-    .chart{height:270px;padding:4px 8px 10px}
+    .k-label{color:var(--muted);font:750 10px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em}
+    .k-value{margin-top:8px;font-size:clamp(25px,3.2vw,38px);font-weight:800;letter-spacing:-.04em}
+    .k-change{margin-top:7px;font-size:11px;color:var(--muted2)}
+    .up{color:var(--green)}
+    .down{color:var(--red)}
+    .flat{color:#b4bcc5}
+
+    .price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .price-card{border:1px solid var(--line);background:var(--panel);min-width:0}
+    .price-head{padding:14px 14px 2px}
+    .price-name{font-weight:800;font-size:12px}
+    .price-source{margin-top:3px;color:var(--muted2);font-size:10px}
+    .chart{height:245px;padding:5px 7px 9px}
     tv-mini-chart{display:block;width:100%;height:100%}
-    .rig-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-    .rig-card{
-      min-width:0;
-      padding:16px;
-      border:1px solid var(--border);
-      background:linear-gradient(180deg,rgba(34,27,23,.98),rgba(24,20,17,.98));
+
+    .map-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,.7fr);gap:12px}
+    .map-panel,.side-panel,.basin-panel,.mix-panel{border:1px solid var(--line);background:var(--panel)}
+    .map-panel{padding:14px;min-width:0}
+    .map-head{display:flex;justify-content:space-between;gap:10px;align-items:start;flex-wrap:wrap;margin-bottom:8px}
+    .map-title{font-weight:800}
+    .map-sub{color:var(--muted2);font-size:11px;margin-top:3px}
+    #usMap{display:block;width:100%;height:auto;aspect-ratio:1.58/1}
+    .state{stroke:#303844;stroke-width:.8;cursor:pointer;transition:filter .12s ease}
+    .state:focus{outline:none;stroke:#fff;stroke-width:2}
+    @media (hover:hover) and (pointer:fine){.state:hover{filter:brightness(1.2)}}
+    .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted2);font-size:10px;margin-top:7px}
+    .legend-bar{width:150px;height:8px;border-radius:8px;background:linear-gradient(90deg,#1b2530,#47627c,#d7a65e)}
+    .side-panel{padding:16px}
+    .selected-state{padding-bottom:14px;border-bottom:1px solid var(--line)}
+    .sel-code{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .sel-name{font-size:24px;font-weight:820;margin-top:3px;letter-spacing:-.03em}
+    .sel-rigs{font-size:48px;font-weight:850;line-height:1;margin:10px 0 4px;letter-spacing:-.055em}
+    .sel-note{color:var(--muted);font-size:12px}
+    .rank-title{font-size:10px;color:var(--muted2);font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin:16px 0 8px}
+    .rank-list{display:grid;gap:5px}
+    .rank-row{
+      width:100%;border:0;background:transparent;color:var(--text);display:grid;
+      grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;
+      padding:8px;border-radius:5px;cursor:pointer;
     }
-    .rig-value{
-      margin-top:10px;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(31px,4vw,46px);
-      line-height:1;
-      letter-spacing:-.03em;
+    .rank-row:hover,.rank-row:focus-visible{background:#1b2129;outline:none}
+    .rank-n{color:var(--muted2);font-size:10px}
+    .rank-state{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rank-count{font-weight:800;font-size:12px}
+
+    .analysis-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+    .basin-panel,.mix-panel{padding:16px}
+    .panel-title{font-weight:800;font-size:13px}
+    .panel-sub{color:var(--muted2);font-size:11px;margin-top:3px}
+    .bars{margin-top:15px;display:grid;gap:10px}
+    .bar-row{display:grid;grid-template-columns:115px minmax(0,1fr) 44px;gap:10px;align-items:center}
+    .bar-label{font-size:11px;color:#c5ccd4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-track{height:8px;background:#202731;border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));border-radius:999px}
+    .bar-num{text-align:right;font-size:11px;font-weight:800}
+    .mix-cards{margin-top:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .mix-card{border:1px solid var(--line);padding:13px}
+    .mix-card .m-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em}
+    .mix-card .m-value{font-size:28px;font-weight:820;margin-top:5px}
+    .mix-card .m-sub{font-size:10px;color:var(--muted2);margin-top:5px}
+
+    .foot{
+      margin-top:32px;border-top:1px solid var(--line);padding-top:16px;
+      display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--muted2);font-size:10px
     }
-    .rig-change{margin-top:9px;font-size:12px;color:#9d938b}
-    .positive{color:var(--green)}
-    .negative{color:var(--red)}
-    .neutral{color:#bdb2a7}
-    .rig-date{margin-top:6px;color:#746c65;font-size:11px}
-    .source-line{
-      display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;
-      margin-top:13px;padding:13px 0 0;border-top:1px solid rgba(184,149,101,.13);
-      color:#81776f;font-size:11px;
+    .foot .note{max-width:840px}
+    .source-link{color:#bfc7d0;text-decoration:none;border-bottom:1px solid #4a535e}
+
+    .status-message{padding:22px;color:var(--muted);font-size:13px}
+    .tooltip{
+      position:fixed;z-index:30;pointer-events:none;display:none;
+      background:#090b0e;border:1px solid #39424d;padding:8px 10px;border-radius:6px;
+      font-size:11px;box-shadow:0 10px 30px rgba(0,0,0,.35)
     }
-    .source-line a{
-      color:#d6c8b8;
-      text-decoration:none;
-      border-bottom:1px solid rgba(214,200,184,.35);
+
+    @media(max-width:1050px){
+      .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .map-layout,.analysis-grid{grid-template-columns:1fr}
     }
-    .notice{
-      margin-top:20px;
-      padding:18px 0 0;
-      border-top:1px solid rgba(184,149,101,.18);
-      display:grid;
-      grid-template-columns:140px 1fr;
-      gap:16px;
-    }
-    .notice-label{
-      color:#81776f;
-      font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
-      letter-spacing:.08em;text-transform:uppercase;
-    }
-    .notice p{
-      margin:0;
-      color:#ddd5cc;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(17px,2.5vw,23px);
-      line-height:1.28;
-    }
-    footer{
-      margin-top:34px;
-      padding-top:17px;
-      border-top:1px solid rgba(184,149,101,.18);
-      display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
-      color:#716861;font-size:11px;
-    }
-    .footnote{max-width:760px}
-    @media (hover:hover) and (pointer:fine){
-      .source-line a:hover{color:var(--cream)}
-    }
-    @media (max-width:880px){
-      .rig-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
-    @media (max-width:760px){
-      .headrow{grid-template-columns:1fr}
-      .status{justify-self:start}
+    @media(max-width:760px){
+      .wrap{padding:13px 12px 42px}
+      .topbar{align-items:flex-start}
+      .brandsub{display:none}
       .hero{grid-template-columns:1fr}
-      .market-grid,.rig-grid{grid-template-columns:1fr}
-      .chart{height:290px}
-      .notice{grid-template-columns:1fr;gap:7px}
-      .shell{padding:15px 13px 42px}
+      .hero-copy{padding:21px}
+      .price-grid{grid-template-columns:1fr}
+      .chart{height:270px}
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .map-panel{padding:9px}
+      .mix-cards{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:430px){
+      .live{font-size:9px}
+      .kpis{grid-template-columns:1fr 1fr}
+      .kpi{padding:12px}
+      .bar-row{grid-template-columns:90px minmax(0,1fr) 36px}
     }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <div class="rule"></div>
-    <div class="eyebrow">
-      <span>Energy Market Live · Market Intelligence</span>
-      <span class="right">Automatic prices + latest official rig count</span>
+  <div class="tooltip" id="tooltip"></div>
+
+  <main class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">EM</div>
+        <div>
+          <div class="brandname">Energy Market Live</div>
+          <div class="brandsub">U.S. upstream intelligence · market + drilling activity</div>
+        </div>
+      </div>
+      <div class="live"><span class="live-dot"></span> Automatic dashboard</div>
     </div>
 
-    <header>
-      <div class="headrow">
-        <div>
-          <h1>Oil, Gas &amp; Rig Count</h1>
-          <p class="subtitle">Live benchmark charts and current drilling activity</p>
-        </div>
-        <div class="status"><span class="dot"></span> Live page</div>
-      </div>
-    </header>
-
-    <section class="hero" aria-label="WTI price">
+    <section class="hero">
       <div class="hero-copy">
-        <div class="smallcap">Primary benchmark</div>
-        <h2>West Texas Intermediate</h2>
-        <p>WTI, Brent and natural gas charts load directly from TradingView. Rig-count cards refresh from a small JSON file that GitHub updates automatically from Baker Hughes.</p>
+        <div class="eyebrow">Live energy intelligence</div>
+        <h1>Markets meet the rig floor.</h1>
+        <p class="lede">WTI, Brent and natural gas alongside the weekly U.S. rig count, drilling mix, basin activity and an interactive state-by-state rig map.</p>
       </div>
-      <div class="hero-ticker">
+      <div class="hero-price">
         <tv-single-ticker symbol="TVC:USOIL" theme="dark" transparent>
-          <div class="placeholder">Loading WTI market data…</div>
+          <div class="status-message">Loading WTI market data…</div>
         </tv-single-ticker>
       </div>
     </section>
 
-    <div class="tape" aria-label="Live energy ticker">
-      <tv-ticker-tape
-        symbols="TVC:USOIL,TVC:UKOIL,OANDA:NATGASUSD"
-        item-size="compact"
-        theme="dark"
-        transparent>
-        <div class="placeholder">Loading energy ticker…</div>
+    <div class="tape">
+      <tv-ticker-tape symbols="TVC:USOIL,TVC:UKOIL,OANDA:NATGASUSD" item-size="compact" theme="dark" transparent>
+        <div class="status-message">Loading market ticker…</div>
       </tv-ticker-tape>
     </div>
 
-    <section aria-labelledby="market-title">
-      <div class="section-head">
-        <h3 id="market-title">Live benchmark charts</h3>
-        <span class="updated" id="pageTime">Connecting…</span>
+    <div class="section-title">
+      <h2>U.S. drilling snapshot</h2>
+      <div class="section-meta" id="rigDate">Loading latest report…</div>
+    </div>
+
+    <section class="kpis">
+      <div class="kpi"><div class="k-label">U.S. Active Rigs</div><div class="k-value" id="usTotal">—</div><div class="k-change" id="usChange">—</div></div>
+      <div class="kpi"><div class="k-label">Oil Rigs</div><div class="k-value" id="oilRigs">—</div><div class="k-change" id="oilChange">—</div></div>
+      <div class="kpi"><div class="k-label">Gas Rigs</div><div class="k-value" id="gasRigs">—</div><div class="k-change" id="gasChange">—</div></div>
+      <div class="kpi"><div class="k-label">Permian</div><div class="k-value" id="permian">—</div><div class="k-change" id="permianChange">—</div></div>
+      <div class="kpi"><div class="k-label">Canada</div><div class="k-value" id="canada">—</div><div class="k-change" id="canadaChange">—</div></div>
+      <div class="kpi"><div class="k-label">U.S. Offshore</div><div class="k-value" id="offshore">—</div><div class="k-change" id="offshoreChange">—</div></div>
+    </section>
+
+    <div class="section-title">
+      <h2>Live benchmark markets</h2>
+      <div class="section-meta">TradingView market widgets</div>
+    </div>
+
+    <section class="price-grid">
+      <article class="price-card">
+        <div class="price-head"><div class="price-name">WTI Crude</div><div class="price-source">TVC:USOIL · USD/bbl</div></div>
+        <div class="chart"><tv-mini-chart symbol="TVC:USOIL" theme="dark" transparent><div class="status-message">Loading WTI…</div></tv-mini-chart></div>
+      </article>
+      <article class="price-card">
+        <div class="price-head"><div class="price-name">Brent Crude</div><div class="price-source">TVC:UKOIL · USD/bbl</div></div>
+        <div class="chart"><tv-mini-chart symbol="TVC:UKOIL" theme="dark" transparent><div class="status-message">Loading Brent…</div></tv-mini-chart></div>
+      </article>
+      <article class="price-card">
+        <div class="price-head"><div class="price-name">Natural Gas</div><div class="price-source">OANDA:NATGASUSD · USD/MMBtu</div></div>
+        <div class="chart"><tv-mini-chart symbol="OANDA:NATGASUSD" theme="dark" transparent><div class="status-message">Loading Natural Gas…</div></tv-mini-chart></div>
+      </article>
+    </section>
+
+    <div class="section-title">
+      <h2>U.S. rig distribution</h2>
+      <div class="section-meta" id="stateDate">State map loading…</div>
+    </div>
+
+    <section class="map-layout">
+      <div class="map-panel">
+        <div class="map-head">
+          <div>
+            <div class="map-title">Active rigs by state</div>
+            <div class="map-sub">Tap or click a state to inspect it. Color intensity represents active rig count.</div>
+          </div>
+          <div class="map-sub">Weekly Baker Hughes-derived count</div>
+        </div>
+        <svg id="usMap" viewBox="0 0 960 600" role="img" aria-label="Map of active drilling rigs by U.S. state"></svg>
+        <div class="legend"><span>0</span><div class="legend-bar"></div><span>High activity</span></div>
       </div>
 
-      <div class="market-grid">
-        <div class="market-card">
-          <div class="market-head">
-            <div class="market-name">WTI Crude</div>
-            <div class="market-source">TradingView · TVC:USOIL</div>
-          </div>
-          <div class="chart">
-            <tv-mini-chart symbol="TVC:USOIL" theme="dark" transparent>
-              <div class="placeholder">Loading WTI chart…</div>
-            </tv-mini-chart>
-          </div>
+      <aside class="side-panel">
+        <div class="selected-state">
+          <div class="sel-code" id="selCode">United States</div>
+          <div class="sel-name" id="selName">Select a state</div>
+          <div class="sel-rigs" id="selRigs">—</div>
+          <div class="sel-note" id="selNote">Tap the map or a state below.</div>
         </div>
+        <div class="rank-title">Top rig states</div>
+        <div class="rank-list" id="rankList"></div>
+      </aside>
+    </section>
 
-        <div class="market-card">
-          <div class="market-head">
-            <div class="market-name">Brent Crude</div>
-            <div class="market-source">TradingView · TVC:UKOIL</div>
-          </div>
-          <div class="chart">
-            <tv-mini-chart symbol="TVC:UKOIL" theme="dark" transparent>
-              <div class="placeholder">Loading Brent chart…</div>
-            </tv-mini-chart>
-          </div>
-        </div>
+    <div class="section-title">
+      <h2>Where drilling is concentrated</h2>
+      <div class="section-meta">Major basin + rig-type breakdown</div>
+    </div>
 
-        <div class="market-card">
-          <div class="market-head">
-            <div class="market-name">Natural Gas</div>
-            <div class="market-source">TradingView · OANDA:NATGASUSD</div>
-          </div>
-          <div class="chart">
-            <tv-mini-chart symbol="OANDA:NATGASUSD" theme="dark" transparent>
-              <div class="placeholder">Loading natural-gas chart…</div>
-            </tv-mini-chart>
-          </div>
+    <section class="analysis-grid">
+      <div class="basin-panel">
+        <div class="panel-title">Major basin activity</div>
+        <div class="panel-sub" id="basinDate">Latest weekly count</div>
+        <div class="bars" id="basinBars"></div>
+      </div>
+
+      <div class="mix-panel">
+        <div class="panel-title">U.S. drilling mix</div>
+        <div class="panel-sub">How the active fleet is being used</div>
+        <div class="mix-cards">
+          <div class="mix-card"><div class="m-label">Horizontal</div><div class="m-value" id="horizontal">—</div><div class="m-sub">trajectory</div></div>
+          <div class="mix-card"><div class="m-label">Directional</div><div class="m-value" id="directional">—</div><div class="m-sub">trajectory</div></div>
+          <div class="mix-card"><div class="m-label">Vertical</div><div class="m-value" id="vertical">—</div><div class="m-sub">trajectory</div></div>
+          <div class="mix-card"><div class="m-label">Land</div><div class="m-value" id="land">—</div><div class="m-sub">location</div></div>
+          <div class="mix-card"><div class="m-label">Offshore</div><div class="m-value" id="offshore2">—</div><div class="m-sub">location</div></div>
+          <div class="mix-card"><div class="m-label">Inland water</div><div class="m-value" id="inland">—</div><div class="m-sub">location</div></div>
         </div>
       </div>
     </section>
 
-    <section id="rig-count" aria-labelledby="rig-title">
-      <div class="section-head">
-        <h3 id="rig-title">Baker Hughes rig count</h3>
-        <span class="updated" id="rigStatus">Loading latest saved count…</span>
+    <footer class="foot">
+      <div>ENERGY MARKET LIVE · PRO</div>
+      <div class="note">
+        Price widgets: TradingView. Rig-count source: Baker Hughes, with state/basin presentation from public Baker Hughes-derived datasets.
+        Exact individual rig GPS coordinates are not represented by the state map. Market data may be real-time, delayed or end-of-day depending on underlying data rights.
+        <a class="source-link" href="https://rigcount.bakerhughes.com/" target="_blank" rel="noopener">Baker Hughes source ↗</a>
       </div>
-
-      <div class="rig-grid">
-        <article class="rig-card">
-          <div class="rig-label">U.S. Active Rigs</div>
-          <div class="rig-source">Baker Hughes</div>
-          <div class="rig-value" id="usCount">—</div>
-          <div class="rig-change neutral" id="usChange">—</div>
-          <div class="rig-date" id="usDate">—</div>
-        </article>
-
-        <article class="rig-card">
-          <div class="rig-label">Canada Active Rigs</div>
-          <div class="rig-source">Baker Hughes</div>
-          <div class="rig-value" id="caCount">—</div>
-          <div class="rig-change neutral" id="caChange">—</div>
-          <div class="rig-date" id="caDate">—</div>
-        </article>
-
-        <article class="rig-card">
-          <div class="rig-label">North America</div>
-          <div class="rig-source">U.S. + Canada</div>
-          <div class="rig-value" id="naCount">—</div>
-          <div class="rig-change neutral" id="naChange">—</div>
-          <div class="rig-date" id="naDate">Latest weekly count</div>
-        </article>
-
-        <article class="rig-card">
-          <div class="rig-label">International</div>
-          <div class="rig-source">Baker Hughes</div>
-          <div class="rig-value" id="intlCount">—</div>
-          <div class="rig-change neutral" id="intlChange">—</div>
-          <div class="rig-date" id="intlDate">—</div>
-        </article>
-      </div>
-
-      <div class="source-line">
-        <span id="dataUpdated">Rig data file loading…</span>
-        <a href="https://rigcount.bakerhughes.com/" target="_blank" rel="noopener">Official Baker Hughes source ↗</a>
-      </div>
-    </section>
-
-    <section class="notice" aria-label="Update explanation">
-      <div class="notice-label">How updates work</div>
-      <p>Market charts update from TradingView when the page is open. The rig count is different: Baker Hughes publishes North America weekly and international data monthly. This page checks its saved rig-count data regularly, while GitHub automatically refreshes that file after Baker Hughes updates its official page.</p>
-    </section>
-
-    <footer>
-      <div>Energy Market Live</div>
-      <div class="footnote">Market data availability may be real-time, delayed, or end-of-day depending on TradingView’s underlying data source and market permissions. Rig count source: Baker Hughes. Informational use only.</div>
     </footer>
   </main>
 
   <script>
-    (() => {
-      const ids = {
-        usCount: document.getElementById('usCount'),
-        caCount: document.getElementById('caCount'),
-        naCount: document.getElementById('naCount'),
-        intlCount: document.getElementById('intlCount'),
-        usChange: document.getElementById('usChange'),
-        caChange: document.getElementById('caChange'),
-        naChange: document.getElementById('naChange'),
-        intlChange: document.getElementById('intlChange'),
-        usDate: document.getElementById('usDate'),
-        caDate: document.getElementById('caDate'),
-        naDate: document.getElementById('naDate'),
-        intlDate: document.getElementById('intlDate'),
-        rigStatus: document.getElementById('rigStatus'),
-        dataUpdated: document.getElementById('dataUpdated'),
-        pageTime: document.getElementById('pageTime')
-      };
+    const STATE_META = {
+      "01":["AL","Alabama"],"02":["AK","Alaska"],"04":["AZ","Arizona"],"05":["AR","Arkansas"],"06":["CA","California"],
+      "08":["CO","Colorado"],"09":["CT","Connecticut"],"10":["DE","Delaware"],"11":["DC","District of Columbia"],"12":["FL","Florida"],
+      "13":["GA","Georgia"],"15":["HI","Hawaii"],"16":["ID","Idaho"],"17":["IL","Illinois"],"18":["IN","Indiana"],
+      "19":["IA","Iowa"],"20":["KS","Kansas"],"21":["KY","Kentucky"],"22":["LA","Louisiana"],"23":["ME","Maine"],
+      "24":["MD","Maryland"],"25":["MA","Massachusetts"],"26":["MI","Michigan"],"27":["MN","Minnesota"],"28":["MS","Mississippi"],
+      "29":["MO","Missouri"],"30":["MT","Montana"],"31":["NE","Nebraska"],"32":["NV","Nevada"],"33":["NH","New Hampshire"],
+      "34":["NJ","New Jersey"],"35":["NM","New Mexico"],"36":["NY","New York"],"37":["NC","North Carolina"],"38":["ND","North Dakota"],
+      "39":["OH","Ohio"],"40":["OK","Oklahoma"],"41":["OR","Oregon"],"42":["PA","Pennsylvania"],"44":["RI","Rhode Island"],
+      "45":["SC","South Carolina"],"46":["SD","South Dakota"],"47":["TN","Tennessee"],"48":["TX","Texas"],"49":["UT","Utah"],
+      "50":["VT","Vermont"],"51":["VA","Virginia"],"53":["WA","Washington"],"54":["WV","West Virginia"],"55":["WI","Wisconsin"],"56":["WY","Wyoming"]
+    };
 
-      function fmtChange(value){
-        const n = Number(value);
-        if (!Number.isFinite(n)) return {text:'Change unavailable', cls:'neutral'};
-        if (n > 0) return {text:`▲ +${n} from prior count`, cls:'positive'};
-        if (n < 0) return {text:`▼ ${n} from prior count`, cls:'negative'};
-        return {text:'No change from prior count', cls:'neutral'};
+    const $ = (id) => document.getElementById(id);
+
+    function changeHTML(n){
+      if(n === null || n === undefined || Number.isNaN(Number(n))) return '<span class="flat">Change unavailable</span>';
+      n = Number(n);
+      if(n > 0) return `<span class="up">▲ +${n} w/w</span>`;
+      if(n < 0) return `<span class="down">▼ ${n} w/w</span>`;
+      return '<span class="flat">— unchanged w/w</span>';
+    }
+
+    function val(x){ return (x === null || x === undefined) ? '—' : Number(x).toLocaleString('en-US'); }
+
+    function findNamed(list, name){
+      return (list || []).find(x => String(x.name).toLowerCase() === name.toLowerCase());
+    }
+
+    function renderKPIs(data){
+      $('rigDate').textContent = data.report_date ? `Week ending ${data.report_date}` : 'Latest weekly report';
+      $('usTotal').textContent = val(data.us?.count);
+      $('usChange').innerHTML = changeHTML(data.us?.change);
+      $('oilRigs').textContent = val(data.drill_for?.oil?.count);
+      $('oilChange').innerHTML = changeHTML(data.drill_for?.oil?.change);
+      $('gasRigs').textContent = val(data.drill_for?.gas?.count);
+      $('gasChange').innerHTML = changeHTML(data.drill_for?.gas?.change);
+
+      const p = findNamed(data.basins,'Permian');
+      $('permian').textContent = val(p?.count);
+      $('permianChange').innerHTML = changeHTML(p?.change);
+
+      $('canada').textContent = val(data.canada?.count);
+      $('canadaChange').innerHTML = changeHTML(data.canada?.change);
+
+      $('offshore').textContent = val(data.location?.offshore?.count);
+      $('offshoreChange').innerHTML = changeHTML(data.location?.offshore?.change);
+    }
+
+    function renderMix(data){
+      $('horizontal').textContent = val(data.trajectory?.horizontal?.count);
+      $('directional').textContent = val(data.trajectory?.directional?.count);
+      $('vertical').textContent = val(data.trajectory?.vertical?.count);
+      $('land').textContent = val(data.location?.land?.count);
+      $('offshore2').textContent = val(data.location?.offshore?.count);
+      $('inland').textContent = val(data.location?.inland_waters?.count);
+    }
+
+    function renderBasins(data){
+      const list = [...(data.basins || [])].sort((a,b)=>Number(b.count)-Number(a.count)).slice(0,9);
+      const max = Math.max(1,...list.map(x=>Number(x.count)||0));
+      $('basinDate').textContent = data.basin_report_date ? `Week ending ${data.basin_report_date}` : 'Latest weekly count';
+      $('basinBars').innerHTML = list.map(x => `
+        <div class="bar-row" title="${x.name}: ${x.count} rigs">
+          <div class="bar-label">${x.name}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(Number(x.count)||0)/max*100)}%"></div></div>
+          <div class="bar-num">${val(x.count)}</div>
+        </div>`).join('');
+    }
+
+    function renderRanking(states, selectState){
+      const list = [...states].filter(x=>Number(x.count)>0).sort((a,b)=>Number(b.count)-Number(a.count)).slice(0,10);
+      $('rankList').innerHTML = '';
+      list.forEach((s,i)=>{
+        const b = document.createElement('button');
+        b.type='button';
+        b.className='rank-row';
+        b.innerHTML=`<span class="rank-n">${String(i+1).padStart(2,'0')}</span><span class="rank-state">${s.name}</span><span class="rank-count">${val(s.count)}</span>`;
+        b.addEventListener('click',()=>selectState(s));
+        $('rankList').appendChild(b);
+      });
+    }
+
+    function setSelected(s){
+      if(!s){
+        $('selCode').textContent='United States';
+        $('selName').textContent='Select a state';
+        $('selRigs').textContent='—';
+        $('selNote').textContent='Tap the map or a state below.';
+        return;
+      }
+      $('selCode').textContent=s.code;
+      $('selName').textContent=s.name;
+      $('selRigs').textContent=val(s.count);
+      $('selNote').innerHTML=`active rigs · ${changeHTML(s.change)}`;
+    }
+
+    async function renderMap(data){
+      const states = data.states || [];
+      $('stateDate').textContent = data.state_report_date ? `State breakdown: ${data.state_report_date}` : 'Latest state breakdown';
+      renderRanking(states,setSelected);
+
+      if(!window.d3 || !window.topojson){
+        $('usMap').outerHTML='<div class="status-message">Interactive map library did not load. State ranking is still available.</div>';
+        return;
       }
 
-      function setChange(el, value){
-        const out = fmtChange(value);
-        el.textContent = out.text;
-        el.className = `rig-change ${out.cls}`;
+      const byCode = new Map(states.map(s=>[s.code,s]));
+      const svg = d3.select('#usMap');
+      const tooltip = $('tooltip');
+
+      try{
+        const us = await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3.0.1/states-10m.json').then(r=>{
+          if(!r.ok) throw new Error('Map file failed');
+          return r.json();
+        });
+        const features = topojson.feature(us,us.objects.states).features;
+        const counts = states.map(x=>Number(x.count)||0);
+        const max = Math.max(1,...counts);
+        const color = d3.scaleSequential().domain([0,max]).interpolator(t=>d3.interpolateRgbBasis(["#18202a","#30485f","#6f8294","#d7a65e"])(t));
+        const projection = d3.geoAlbersUsa().scale(1220).translate([480,300]);
+        const path = d3.geoPath(projection);
+
+        svg.selectAll('*').remove();
+
+        svg.append('g')
+          .selectAll('path')
+          .data(features)
+          .join('path')
+          .attr('class','state')
+          .attr('tabindex',0)
+          .attr('d',path)
+          .attr('fill',d=>{
+            const meta=STATE_META[String(d.id).padStart(2,'0')];
+            const item=meta?byCode.get(meta[0]):null;
+            return color(Number(item?.count)||0);
+          })
+          .attr('aria-label',d=>{
+            const meta=STATE_META[String(d.id).padStart(2,'0')];
+            const item=meta?byCode.get(meta[0]):null;
+            return meta ? `${meta[1]}: ${Number(item?.count)||0} active rigs` : 'State';
+          })
+          .on('mousemove',(event,d)=>{
+            const meta=STATE_META[String(d.id).padStart(2,'0')];
+            if(!meta) return;
+            const item=byCode.get(meta[0]) || {code:meta[0],name:meta[1],count:0,change:0};
+            tooltip.style.display='block';
+            tooltip.style.left=(event.clientX+12)+'px';
+            tooltip.style.top=(event.clientY+12)+'px';
+            tooltip.innerHTML=`<strong>${item.name}</strong><br>${val(item.count)} active rigs`;
+          })
+          .on('mouseleave',()=>tooltip.style.display='none')
+          .on('click',(event,d)=>{
+            const meta=STATE_META[String(d.id).padStart(2,'0')];
+            if(!meta) return;
+            const item=byCode.get(meta[0]) || {code:meta[0],name:meta[1],count:0,change:0};
+            setSelected(item);
+          })
+          .on('keydown',(event,d)=>{
+            if(event.key!=='Enter' && event.key!==' ') return;
+            event.preventDefault();
+            const meta=STATE_META[String(d.id).padStart(2,'0')];
+            if(!meta) return;
+            setSelected(byCode.get(meta[0]) || {code:meta[0],name:meta[1],count:0,change:0});
+          });
+
+        svg.append('path')
+          .datum(topojson.mesh(us,us.objects.states,(a,b)=>a!==b))
+          .attr('fill','none').attr('stroke','#3a434f').attr('stroke-width',.55).attr('d',path);
+
+        const tx=byCode.get('TX');
+        if(tx) setSelected(tx);
+      }catch(e){
+        svg.selectAll('*').remove();
+        const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x','40');t.setAttribute('y','70');t.setAttribute('fill','#9aa4b1');t.setAttribute('font-size','18');
+        t.textContent='Map could not load. Use the Top Rig States list.';
+        svg.node().appendChild(t);
       }
+    }
 
-      function safeInt(v){
-        const n = Number(v);
-        return Number.isFinite(n) ? Math.trunc(n).toLocaleString('en-US') : '—';
+    async function loadData(){
+      try{
+        const r=await fetch(`rigcount.json?ts=${Date.now()}`,{cache:'no-store'});
+        if(!r.ok) throw new Error('rigcount.json unavailable');
+        const data=await r.json();
+        renderKPIs(data);
+        renderMix(data);
+        renderBasins(data);
+        renderMap(data);
+      }catch(e){
+        $('rigDate').textContent='Rig data temporarily unavailable';
       }
+    }
 
-      function render(data){
-        ids.usCount.textContent = safeInt(data.us?.count);
-        ids.caCount.textContent = safeInt(data.canada?.count);
-        ids.intlCount.textContent = safeInt(data.international?.count);
-
-        const na = Number(data.north_america?.count ?? ((data.us?.count ?? 0) + (data.canada?.count ?? 0)));
-        ids.naCount.textContent = Number.isFinite(na) ? Math.trunc(na).toLocaleString('en-US') : '—';
-
-        setChange(ids.usChange, data.us?.change);
-        setChange(ids.caChange, data.canada?.change);
-        setChange(ids.intlChange, data.international?.change);
-        setChange(ids.naChange, data.north_america?.change);
-
-        ids.usDate.textContent = data.us?.last_count || 'Latest weekly count';
-        ids.caDate.textContent = data.canada?.last_count || 'Latest weekly count';
-        ids.naDate.textContent = data.north_america?.last_count || data.us?.last_count || 'Latest weekly count';
-        ids.intlDate.textContent = data.international?.last_count || 'Latest monthly count';
-
-        ids.rigStatus.textContent = 'Latest saved official count';
-        ids.dataUpdated.textContent = data.fetched_at
-          ? `Last automatic refresh: ${new Date(data.fetched_at).toLocaleString()}`
-          : 'Automatic refresh active';
-      }
-
-      async function loadRigCount(){
-        try{
-          const res = await fetch(`rigcount.json?ts=${Date.now()}`, {cache:'no-store'});
-          if(!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          render(data);
-        }catch(err){
-          ids.rigStatus.textContent = 'Rig-count data temporarily unavailable';
-          ids.dataUpdated.textContent = 'The page will retry automatically.';
-        }
-      }
-
-      function tickClock(){
-        const now = new Date();
-        ids.pageTime.textContent = new Intl.DateTimeFormat('en-US',{
-          month:'short', day:'numeric', year:'numeric',
-          hour:'numeric', minute:'2-digit', second:'2-digit',
-          timeZoneName:'short'
-        }).format(now);
-      }
-
-      loadRigCount();
-      setInterval(loadRigCount, 10 * 60 * 1000);
-      tickClock();
-      setInterval(tickClock, 1000);
-    })();
+    loadData();
+    setInterval(loadData,10*60*1000);
   </script>
 </body>
 </html>
