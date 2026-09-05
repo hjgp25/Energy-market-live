@@ -265,16 +265,37 @@ def scrape_official_weekly(existing):
     ca_now = total(current, is_canada)
     ca_prev = total(previous, is_canada)
 
-    states_raw = make_breakdown(current, previous, "state", is_us)
+     states_raw = make_breakdown(current, previous, "state", is_us)
     states = []
+
+    # Baker Hughes may use either full state names ("Texas")
+    # or postal abbreviations ("TX"). Support both.
+    code_to_name = {code: name for name, code in STATE_CODES.items()}
+
     for x in states_raw:
-        name = x["name"]
-        if name in STATE_CODES:
-            states.append({
-                "code": STATE_CODES[name],
-                "name": name,
-                "count": x["count"],
-                "change": x["change"],
+        raw = clean(x["name"])
+        upper = raw.upper()
+
+        if raw in STATE_CODES:
+            code = STATE_CODES[raw]
+            name = raw
+
+        elif upper in code_to_name:
+            code = upper
+            name = code_to_name[upper]
+
+        else:
+            continue
+
+        states.append({
+            "code": code,
+            "name": name,
+            "count": x["count"],
+            "change": x["change"],
+        })
+
+    print(f"STATE CHECK: parsed {len(states)} U.S. states")
+    print(states)
             })
 
     basins = make_breakdown(current, previous, "basin", is_us)
