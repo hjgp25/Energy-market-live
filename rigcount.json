@@ -3,10 +3,10 @@
   "report_date": "September 4, 2026",
   "state_report_date": "September 4, 2026",
   "basin_report_date": "September 4, 2026",
-  "fetched_at": "2026-09-05T07:22:16+00:00",
+  "fetched_at": "2026-09-05T07:48:12+00:00",
   "us": {
     "count": 588,
-    "change": null
+    "change": 0
   },
   "canada": {
     "count": 204,
@@ -27,13 +27,13 @@
     }
   },
   "trajectory": {
-    "horizontal": {
-      "count": 535,
-      "change": 0
-    },
     "directional": {
       "count": 42,
       "change": -1
+    },
+    "horizontal": {
+      "count": 535,
+      "change": 0
     },
     "vertical": {
       "count": 10,
@@ -41,7 +41,7 @@
     },
     "other": {
       "count": 1,
-      "change": 0
+      "change": 1
     }
   },
   "location": {
@@ -63,6 +63,11 @@
       "name": "Permian",
       "count": 268,
       "change": 1
+    },
+    {
+      "name": "Other",
+      "count": 100,
+      "change": 0
     },
     {
       "name": "Haynesville",
@@ -120,96 +125,12 @@
       "change": 0
     }
   ],
-  "states": [
-    {
-      "code": "TX",
-      "name": "Texas",
-      "count": 283,
-      "change": 1
-    },
-    {
-      "code": "NM",
-      "name": "New Mexico",
-      "count": 95,
-      "change": 0
-    },
-    {
-      "code": "OK",
-      "name": "Oklahoma",
-      "count": 51,
-      "change": 0
-    },
-    {
-      "code": "LA",
-      "name": "Louisiana",
-      "count": 35,
-      "change": -1
-    },
-    {
-      "code": "ND",
-      "name": "North Dakota",
-      "count": 24,
-      "change": 0
-    },
-    {
-      "code": "PA",
-      "name": "Pennsylvania",
-      "count": 15,
-      "change": -1
-    },
-    {
-      "code": "WY",
-      "name": "Wyoming",
-      "count": 15,
-      "change": 0
-    },
-    {
-      "code": "CO",
-      "name": "Colorado",
-      "count": 13,
-      "change": 1
-    },
-    {
-      "code": "UT",
-      "name": "Utah",
-      "count": 13,
-      "change": 0
-    },
-    {
-      "code": "AK",
-      "name": "Alaska",
-      "count": 12,
-      "change": 0
-    },
-    {
-      "code": "OH",
-      "name": "Ohio",
-      "count": 9,
-      "change": 0
-    },
-    {
-      "code": "WV",
-      "name": "West Virginia",
-      "count": 9,
-      "change": 0
-    },
-    {
-      "code": "CA",
-      "name": "California",
-      "count": 7,
-      "change": 0
-    },
-    {
-      "code": "MT",
-      "name": "Montana",
-      "count": 3,
-      "change": 0
-    },
-    {
-      "code": "NV",
-      "name": "Nevada",
-      "count": 2,
-      "change": 0
-    }
-  ]
+  "states": [],
+  "official_report_url": "https://rigcount.bakerhughes.com/static-files/2da8181e-4b1c-4f75-9ad8-44854f4fc106",
+  "previous_report_date": "August 28, 2026",
+  "international": {
+    "last_count": "August 2026",
+    "count": 1102,
+    "change": 6
+  }
 }
