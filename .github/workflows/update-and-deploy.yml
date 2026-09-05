@@ -1,0 +1,74 @@
+name: Update and deploy Energy Market Live
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "rigcount.json"
+  schedule:
+    # Check every weekday after the normal Baker Hughes noon CT release window.
+    - cron: "25 13 * * 1-5"
+      timezone: "America/Chicago"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: energy-market-live
+  cancel-in-progress: false
+
+jobs:
+  update-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh rig data
+        run: python update_dashboard.py || echo "Update source unavailable; deploying last good data."
+
+      - name: Save new data if changed
+        run: |
+          if git diff --quiet -- rigcount.json; then
+            echo "No rig-count changes."
+          else
+            git config user.name "energy-market-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add rigcount.json
+            git commit -m "Update weekly rig data"
+            git push
+          fi
+
+      - name: Build Pages artifact
+        run: |
+          mkdir -p public
+          cp index.html public/index.html
+          cp rigcount.json public/rigcount.json
+          touch public/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
