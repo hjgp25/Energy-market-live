@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#110e0c">
+  <meta name="description" content="Live WTI, Brent, Natural Gas and latest Baker Hughes rig count.">
+  <title>Energy Market Live</title>
+
+  <!-- TradingView's current Web Component widgets -->
+  <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
+  <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-single-ticker.js"></script>
+  <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-mini-chart.js"></script>
+
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg:#110e0c;
+      --panel:#1b1613;
+      --panel-2:#211a16;
+      --border:rgba(184,149,101,.22);
+      --gold:#b89565;
+      --cream:#f2eee7;
+      --muted:#a99d92;
+      --muted2:#746b64;
+      --green:#5dc28d;
+      --red:#d96772;
+      --tv-widget-accent-color:#b89565;
+      --tv-widget-text-color:#f2eee7;
+      --tv-widget-background-color:transparent;
+      --tv-widget-font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 86% -10%,rgba(115,48,46,.18),transparent 34rem),
+        var(--bg);
+      color:var(--cream);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.45;
+    }
+    a{color:inherit}
+    .shell{width:min(1120px,100%);margin:0 auto;padding:18px 16px 56px}
+    .rule{height:2px;background:linear-gradient(90deg,var(--gold),rgba(184,149,101,.06));margin:4px 0 13px}
+    .eyebrow{
+      display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+      color:#bd6e75;
+      font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
+      letter-spacing:.09em;text-transform:uppercase;
+    }
+    .eyebrow .right{color:#817871}
+    header{padding:20px 0 18px;border-bottom:1px solid var(--border)}
+    .headrow{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+    h1{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(44px,8vw,78px);
+      line-height:.92;
+      letter-spacing:-.04em;
+    }
+    .subtitle{
+      margin:12px 0 0;
+      color:var(--muted);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(17px,2.7vw,24px);
+      font-style:italic;
+    }
+    .status{
+      display:inline-flex;align-items:center;gap:9px;
+      border:1px solid rgba(184,149,101,.35);
+      border-radius:999px;
+      padding:10px 13px;
+      color:#d9cdbf;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      background:rgba(255,255,255,.02);
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(93,194,141,.10)}
+    .hero{
+      margin:20px 0 16px;
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+      gap:14px;
+    }
+    .hero-copy,.hero-ticker{
+      min-width:0;
+      border:1px solid var(--border);
+      background:rgba(29,23,20,.82);
+    }
+    .hero-copy{padding:22px}
+    .smallcap{
+      color:#9f9287;
+      font:700 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .hero-copy h2{
+      margin:8px 0 9px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(30px,4.8vw,48px);
+      line-height:1.02;
+    }
+    .hero-copy p{margin:0;color:#b8ada3;max-width:60ch}
+    .hero-ticker{padding:14px;display:flex;align-items:center;min-height:155px}
+    tv-single-ticker{width:100%}
+    .placeholder{padding:24px;color:var(--muted);font-size:14px}
+    .tape{
+      margin:0 0 22px;
+      padding:7px 0;
+      border-top:1px solid rgba(184,149,101,.15);
+      border-bottom:1px solid rgba(184,149,101,.15);
+      overflow:hidden;
+    }
+    tv-ticker-tape{width:100%}
+    .section-head{
+      display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap;
+      margin:27px 0 12px;
+    }
+    .section-head h3{
+      margin:0;
+      color:#a79a8f;
+      font:700 12px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;
+      letter-spacing:.08em;text-transform:uppercase;
+    }
+    .updated{color:#827870;font-size:12px}
+    .market-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .market-card{
+      min-width:0;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(34,27,23,.98),rgba(24,20,17,.98));
+    }
+    .market-head{padding:14px 14px 5px}
+    .market-name,.rig-label{
+      color:#d2c6ba;
+      font:800 10px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;
+      letter-spacing:.08em;text-transform:uppercase;
+    }
+    .market-source,.rig-source{
+      margin-top:4px;
+      color:var(--muted2);
+      font:600 9px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;
+      text-transform:uppercase;
+    }
+    .chart{height:270px;padding:4px 8px 10px}
+    tv-mini-chart{display:block;width:100%;height:100%}
+    .rig-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .rig-card{
+      min-width:0;
+      padding:16px;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(34,27,23,.98),rgba(24,20,17,.98));
+    }
+    .rig-value{
+      margin-top:10px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(31px,4vw,46px);
+      line-height:1;
+      letter-spacing:-.03em;
+    }
+    .rig-change{margin-top:9px;font-size:12px;color:#9d938b}
+    .positive{color:var(--green)}
+    .negative{color:var(--red)}
+    .neutral{color:#bdb2a7}
+    .rig-date{margin-top:6px;color:#746c65;font-size:11px}
+    .source-line{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;
+      margin-top:13px;padding:13px 0 0;border-top:1px solid rgba(184,149,101,.13);
+      color:#81776f;font-size:11px;
+    }
+    .source-line a{
+      color:#d6c8b8;
+      text-decoration:none;
+      border-bottom:1px solid rgba(214,200,184,.35);
+    }
+    .notice{
+      margin-top:20px;
+      padding:18px 0 0;
+      border-top:1px solid rgba(184,149,101,.18);
+      display:grid;
+      grid-template-columns:140px 1fr;
+      gap:16px;
+    }
+    .notice-label{
+      color:#81776f;
+      font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;
+      letter-spacing:.08em;text-transform:uppercase;
+    }
+    .notice p{
+      margin:0;
+      color:#ddd5cc;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(17px,2.5vw,23px);
+      line-height:1.28;
+    }
+    footer{
+      margin-top:34px;
+      padding-top:17px;
+      border-top:1px solid rgba(184,149,101,.18);
+      display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+      color:#716861;font-size:11px;
+    }
+    .footnote{max-width:760px}
+    @media (hover:hover) and (pointer:fine){
+      .source-line a:hover{color:var(--cream)}
+    }
+    @media (max-width:880px){
+      .rig-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:760px){
+      .headrow{grid-template-columns:1fr}
+      .status{justify-self:start}
+      .hero{grid-template-columns:1fr}
+      .market-grid,.rig-grid{grid-template-columns:1fr}
+      .chart{height:290px}
+      .notice{grid-template-columns:1fr;gap:7px}
+      .shell{padding:15px 13px 42px}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="rule"></div>
+    <div class="eyebrow">
+      <span>Energy Market Live · Market Intelligence</span>
+      <span class="right">Automatic prices + latest official rig count</span>
+    </div>
+
+    <header>
+      <div class="headrow">
+        <div>
+          <h1>Oil, Gas &amp; Rig Count</h1>
+          <p class="subtitle">Live benchmark charts and current drilling activity</p>
+        </div>
+        <div class="status"><span class="dot"></span> Live page</div>
+      </div>
+    </header>
+
+    <section class="hero" aria-label="WTI price">
+      <div class="hero-copy">
+        <div class="smallcap">Primary benchmark</div>
+        <h2>West Texas Intermediate</h2>
+        <p>WTI, Brent and natural gas charts load directly from TradingView. Rig-count cards refresh from a small JSON file that GitHub updates automatically from Baker Hughes.</p>
+      </div>
+      <div class="hero-ticker">
+        <tv-single-ticker symbol="TVC:USOIL" theme="dark" transparent>
+          <div class="placeholder">Loading WTI market data…</div>
+        </tv-single-ticker>
+      </div>
+    </section>
+
+    <div class="tape" aria-label="Live energy ticker">
+      <tv-ticker-tape
+        symbols="TVC:USOIL,TVC:UKOIL,OANDA:NATGASUSD"
+        item-size="compact"
+        theme="dark"
+        transparent>
+        <div class="placeholder">Loading energy ticker…</div>
+      </tv-ticker-tape>
+    </div>
+
+    <section aria-labelledby="market-title">
+      <div class="section-head">
+        <h3 id="market-title">Live benchmark charts</h3>
+        <span class="updated" id="pageTime">Connecting…</span>
+      </div>
+
+      <div class="market-grid">
+        <div class="market-card">
+          <div class="market-head">
+            <div class="market-name">WTI Crude</div>
+            <div class="market-source">TradingView · TVC:USOIL</div>
+          </div>
+          <div class="chart">
+            <tv-mini-chart symbol="TVC:USOIL" theme="dark" transparent>
+              <div class="placeholder">Loading WTI chart…</div>
+            </tv-mini-chart>
+          </div>
+        </div>
+
+        <div class="market-card">
+          <div class="market-head">
+            <div class="market-name">Brent Crude</div>
+            <div class="market-source">TradingView · TVC:UKOIL</div>
+          </div>
+          <div class="chart">
+            <tv-mini-chart symbol="TVC:UKOIL" theme="dark" transparent>
+              <div class="placeholder">Loading Brent chart…</div>
+            </tv-mini-chart>
+          </div>
+        </div>
+
+        <div class="market-card">
+          <div class="market-head">
+            <div class="market-name">Natural Gas</div>
+            <div class="market-source">TradingView · OANDA:NATGASUSD</div>
+          </div>
+          <div class="chart">
+            <tv-mini-chart symbol="OANDA:NATGASUSD" theme="dark" transparent>
+              <div class="placeholder">Loading natural-gas chart…</div>
+            </tv-mini-chart>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rig-count" aria-labelledby="rig-title">
+      <div class="section-head">
+        <h3 id="rig-title">Baker Hughes rig count</h3>
+        <span class="updated" id="rigStatus">Loading latest saved count…</span>
+      </div>
+
+      <div class="rig-grid">
+        <article class="rig-card">
+          <div class="rig-label">U.S. Active Rigs</div>
+          <div class="rig-source">Baker Hughes</div>
+          <div class="rig-value" id="usCount">—</div>
+          <div class="rig-change neutral" id="usChange">—</div>
+          <div class="rig-date" id="usDate">—</div>
+        </article>
+
+        <article class="rig-card">
+          <div class="rig-label">Canada Active Rigs</div>
+          <div class="rig-source">Baker Hughes</div>
+          <div class="rig-value" id="caCount">—</div>
+          <div class="rig-change neutral" id="caChange">—</div>
+          <div class="rig-date" id="caDate">—</div>
+        </article>
+
+        <article class="rig-card">
+          <div class="rig-label">North America</div>
+          <div class="rig-source">U.S. + Canada</div>
+          <div class="rig-value" id="naCount">—</div>
+          <div class="rig-change neutral" id="naChange">—</div>
+          <div class="rig-date" id="naDate">Latest weekly count</div>
+        </article>
+
+        <article class="rig-card">
+          <div class="rig-label">International</div>
+          <div class="rig-source">Baker Hughes</div>
+          <div class="rig-value" id="intlCount">—</div>
+          <div class="rig-change neutral" id="intlChange">—</div>
+          <div class="rig-date" id="intlDate">—</div>
+        </article>
+      </div>
+
+      <div class="source-line">
+        <span id="dataUpdated">Rig data file loading…</span>
+        <a href="https://rigcount.bakerhughes.com/" target="_blank" rel="noopener">Official Baker Hughes source ↗</a>
+      </div>
+    </section>
+
+    <section class="notice" aria-label="Update explanation">
+      <div class="notice-label">How updates work</div>
+      <p>Market charts update from TradingView when the page is open. The rig count is different: Baker Hughes publishes North America weekly and international data monthly. This page checks its saved rig-count data regularly, while GitHub automatically refreshes that file after Baker Hughes updates its official page.</p>
+    </section>
+
+    <footer>
+      <div>Energy Market Live</div>
+      <div class="footnote">Market data availability may be real-time, delayed, or end-of-day depending on TradingView’s underlying data source and market permissions. Rig count source: Baker Hughes. Informational use only.</div>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const ids = {
+        usCount: document.getElementById('usCount'),
+        caCount: document.getElementById('caCount'),
+        naCount: document.getElementById('naCount'),
+        intlCount: document.getElementById('intlCount'),
+        usChange: document.getElementById('usChange'),
+        caChange: document.getElementById('caChange'),
+        naChange: document.getElementById('naChange'),
+        intlChange: document.getElementById('intlChange'),
+        usDate: document.getElementById('usDate'),
+        caDate: document.getElementById('caDate'),
+        naDate: document.getElementById('naDate'),
+        intlDate: document.getElementById('intlDate'),
+        rigStatus: document.getElementById('rigStatus'),
+        dataUpdated: document.getElementById('dataUpdated'),
+        pageTime: document.getElementById('pageTime')
+      };
+
+      function fmtChange(value){
+        const n = Number(value);
+        if (!Number.isFinite(n)) return {text:'Change unavailable', cls:'neutral'};
+        if (n > 0) return {text:`▲ +${n} from prior count`, cls:'positive'};
+        if (n < 0) return {text:`▼ ${n} from prior count`, cls:'negative'};
+        return {text:'No change from prior count', cls:'neutral'};
+      }
+
+      function setChange(el, value){
+        const out = fmtChange(value);
+        el.textContent = out.text;
+        el.className = `rig-change ${out.cls}`;
+      }
+
+      function safeInt(v){
+        const n = Number(v);
+        return Number.isFinite(n) ? Math.trunc(n).toLocaleString('en-US') : '—';
+      }
+
+      function render(data){
+        ids.usCount.textContent = safeInt(data.us?.count);
+        ids.caCount.textContent = safeInt(data.canada?.count);
+        ids.intlCount.textContent = safeInt(data.international?.count);
+
+        const na = Number(data.north_america?.count ?? ((data.us?.count ?? 0) + (data.canada?.count ?? 0)));
+        ids.naCount.textContent = Number.isFinite(na) ? Math.trunc(na).toLocaleString('en-US') : '—';
+
+        setChange(ids.usChange, data.us?.change);
+        setChange(ids.caChange, data.canada?.change);
+        setChange(ids.intlChange, data.international?.change);
+        setChange(ids.naChange, data.north_america?.change);
+
+        ids.usDate.textContent = data.us?.last_count || 'Latest weekly count';
+        ids.caDate.textContent = data.canada?.last_count || 'Latest weekly count';
+        ids.naDate.textContent = data.north_america?.last_count || data.us?.last_count || 'Latest weekly count';
+        ids.intlDate.textContent = data.international?.last_count || 'Latest monthly count';
+
+        ids.rigStatus.textContent = 'Latest saved official count';
+        ids.dataUpdated.textContent = data.fetched_at
+          ? `Last automatic refresh: ${new Date(data.fetched_at).toLocaleString()}`
+          : 'Automatic refresh active';
+      }
+
+      async function loadRigCount(){
+        try{
+          const res = await fetch(`rigcount.json?ts=${Date.now()}`, {cache:'no-store'});
+          if(!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          render(data);
+        }catch(err){
+          ids.rigStatus.textContent = 'Rig-count data temporarily unavailable';
+          ids.dataUpdated.textContent = 'The page will retry automatically.';
+        }
+      }
+
+      function tickClock(){
+        const now = new Date();
+        ids.pageTime.textContent = new Intl.DateTimeFormat('en-US',{
+          month:'short', day:'numeric', year:'numeric',
+          hour:'numeric', minute:'2-digit', second:'2-digit',
+          timeZoneName:'short'
+        }).format(now);
+      }
+
+      loadRigCount();
+      setInterval(loadRigCount, 10 * 60 * 1000);
+      tickClock();
+      setInterval(tickClock, 1000);
+    })();
+  </script>
+</body>
+</html>

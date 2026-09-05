@@ -1,0 +1,25 @@
+{
+  "source": "Baker Hughes Rig Count",
+  "source_url": "https://rigcount.bakerhughes.com/",
+  "fetched_at": "2026-09-04T18:30:00-05:00",
+  "us": {
+    "last_count": "September 4, 2026",
+    "count": 588,
+    "change": 0
+  },
+  "canada": {
+    "last_count": "September 4, 2026",
+    "count": 204,
+    "change": -7
+  },
+  "north_america": {
+    "last_count": "September 4, 2026",
+    "count": 792,
+    "change": -7
+  },
+  "international": {
+    "last_count": "August 2026",
+    "count": 1102,
+    "change": 6
+  }
+}
