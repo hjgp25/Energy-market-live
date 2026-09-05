@@ -70,6 +70,7 @@ STATE_CODES = {
     "West Virginia":"WV","Wisconsin":"WI","Wyoming":"WY"
 }
 STATE_NAMES = {code: name for name, code in STATE_CODES.items()}
+STATE_BY_UPPER_NAME = {name.upper(): (code, name) for name, code in STATE_CODES.items()}
 
 ALIASES = {
     "country": {"country"},
@@ -280,29 +281,49 @@ def scrape_official_weekly(existing):
     ca_prev = total(previous, is_canada)
 
     states_raw = make_breakdown(current, previous, "state", is_us)
-    states = []
-    for x in states_raw:
-        raw = clean(x["name"])
-        raw_upper = raw.upper()
 
-        # Baker Hughes workbooks may use either full state names (Texas)
-        # or postal abbreviations (TX). Accept both.
-        if raw in STATE_CODES:
-            code = STATE_CODES[raw]
-            name = raw
-        elif raw_upper in STATE_NAMES:
-            code = raw_upper
-            name = STATE_NAMES[raw_upper]
-        else:
-            # Ignore non-state buckets such as Gulf of Mexico / Other.
+    # Baker Hughes state labels may be uppercase full names, title-case names,
+    # postal abbreviations, or Louisiana sub-regions. Normalize all of them.
+    by_state_code = {}
+
+    def resolve_state_label(label):
+        raw = clean(label)
+        upper = re.sub(r"\\s+", " ", raw.upper()).strip()
+
+        # Full state name, case-insensitive: TEXAS / Texas
+        if upper in STATE_BY_UPPER_NAME:
+            return STATE_BY_UPPER_NAME[upper]
+
+        # Postal abbreviation: TX
+        if upper in STATE_NAMES:
+            return upper, STATE_NAMES[upper]
+
+        # Some Baker Hughes tables can split Louisiana geographically.
+        if upper.startswith("LOUISIANA"):
+            return "LA", "Louisiana"
+
+        return None
+
+    for x in states_raw:
+        resolved = resolve_state_label(x["name"])
+        if not resolved:
             continue
 
-        states.append({
+        code, name = resolved
+        item = by_state_code.setdefault(code, {
             "code": code,
             "name": name,
-            "count": x["count"],
-            "change": x["change"],
+            "count": 0,
+            "change": 0,
         })
+        item["count"] += int(x["count"] or 0)
+        item["change"] += int(x["change"] or 0)
+
+    states = sorted(by_state_code.values(), key=lambda x: x["count"], reverse=True)
+
+    print(f"STATE CHECK: raw state labels = {[x['name'] for x in states_raw[:30]]}")
+    print(f"STATE CHECK: parsed {len(states)} U.S. states")
+    print(states)
 
     basins = make_breakdown(current, previous, "basin", is_us)
     drill_for = dict_breakdown(current, previous, "drill_for", is_us)
