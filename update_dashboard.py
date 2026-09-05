@@ -35,14 +35,21 @@ from openpyxl import load_workbook
 OUT = Path("rigcount.json")
 
 REPORT_PAGES = [
-    "https://rigcount.bakerhughes.com/na-rig-count/",
-    "https://bakerhughesrigcount.gcs-web.com/na-rig-count/",
+    # IMPORTANT: Baker Hughes currently serves this route without a trailing slash.
+    "https://rigcount.bakerhughes.com/na-rig-count",
+    "https://rigcount.bakerhughes.com/na-rig-count?outputType=chromeless",
 ]
 
 SUMMARY_PAGES = [
-    "https://rigcount.bakerhughes.com/",
-    "https://bakerhughesrigcount.gcs-web.com/",
+    "https://rigcount.bakerhughes.com",
 ]
+
+# Current official workbook fallback. The discovery page is still preferred,
+# so future weekly reports will be picked up automatically.
+CURRENT_REPORT_FALLBACK = (
+    "https://rigcount.bakerhughes.com/static-files/"
+    "2da8181e-4b1c-4f75-9ad8-44854f4fc106"
+)
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; EnergyMarketLive/2.0; +GitHubPages)",
@@ -62,6 +69,7 @@ STATE_CODES = {
     "Tennessee":"TN","Texas":"TX","Utah":"UT","Vermont":"VT","Virginia":"VA","Washington":"WA",
     "West Virginia":"WV","Wisconsin":"WI","Wyoming":"WY"
 }
+STATE_NAMES = {code: name for name, code in STATE_CODES.items()}
 
 ALIASES = {
     "country": {"country"},
@@ -116,32 +124,38 @@ def discover_latest_xlsx():
     errors = []
     for page in REPORT_PAGES:
         try:
+            print("Checking Baker Hughes report page:", page)
             html = get(page).text
             soup = BeautifulSoup(html, "html.parser")
 
-            # Prefer a link near "New Report".
+            # Prefer a link whose visible text says "New Report".
             candidates = []
             for a in soup.find_all("a", href=True):
                 href = a.get("href","")
                 text = clean(a.get_text(" ", strip=True))
                 if "/static-files/" in href:
-                    score = 2 if "new report" in text.lower() else 1
+                    score = 3 if "new report" in text.lower() else 1
                     candidates.append((score, href, text))
 
             if not candidates:
-                # Regex fallback for pages where the anchor text is unusual.
                 for href in re.findall(r'href=["\']([^"\']*/static-files/[^"\']+)["\']', html, re.I):
                     candidates.append((1, href, ""))
 
-            if not candidates:
-                raise RuntimeError("No Baker Hughes static-file report link found")
+            if candidates:
+                candidates.sort(key=lambda x: x[0], reverse=True)
+                discovered = urljoin(page, candidates[0][1])
+                print("Discovered official workbook:", discovered)
+                return discovered
 
-            candidates.sort(key=lambda x: x[0], reverse=True)
-            return urljoin(page, candidates[0][1])
+            errors.append(f"{page}: no static-file link found")
         except Exception as exc:
             errors.append(f"{page}: {exc}")
 
-    raise RuntimeError("Could not discover Baker Hughes Excel report: " + " | ".join(errors))
+    # Do not break the site if Baker Hughes temporarily changes its HTML.
+    # Use the current official workbook as a one-week safety fallback.
+    print("Discovery warning:", " | ".join(errors))
+    print("Using current official workbook fallback:", CURRENT_REPORT_FALLBACK)
+    return CURRENT_REPORT_FALLBACK
 
 def header_map(row):
     result = {}
@@ -265,26 +279,22 @@ def scrape_official_weekly(existing):
     ca_now = total(current, is_canada)
     ca_prev = total(previous, is_canada)
 
-     states_raw = make_breakdown(current, previous, "state", is_us)
+    states_raw = make_breakdown(current, previous, "state", is_us)
     states = []
-
-    # Baker Hughes may use either full state names ("Texas")
-    # or postal abbreviations ("TX"). Support both.
-    code_to_name = {code: name for name, code in STATE_CODES.items()}
-
     for x in states_raw:
         raw = clean(x["name"])
-        upper = raw.upper()
+        raw_upper = raw.upper()
 
+        # Baker Hughes workbooks may use either full state names (Texas)
+        # or postal abbreviations (TX). Accept both.
         if raw in STATE_CODES:
             code = STATE_CODES[raw]
             name = raw
-
-        elif upper in code_to_name:
-            code = upper
-            name = code_to_name[upper]
-
+        elif raw_upper in STATE_NAMES:
+            code = raw_upper
+            name = STATE_NAMES[raw_upper]
         else:
+            # Ignore non-state buckets such as Gulf of Mexico / Other.
             continue
 
         states.append({
@@ -294,10 +304,6 @@ def scrape_official_weekly(existing):
             "change": x["change"],
         })
 
-    print(f"STATE CHECK: parsed {len(states)} U.S. states")
-    print(states)
-            })
-
     basins = make_breakdown(current, previous, "basin", is_us)
     drill_for = dict_breakdown(current, previous, "drill_for", is_us)
     trajectory = dict_breakdown(current, previous, "trajectory", is_us)
@@ -305,6 +311,8 @@ def scrape_official_weekly(existing):
 
     report_date = latest_date.strftime("%B %-d, %Y")
     prev_date = previous_date.strftime("%B %-d, %Y")
+
+    print(f"Parsed {len(states)} U.S. state rows from official workbook.")
 
     return {
         "source": "Baker Hughes Rig Count",
@@ -356,8 +364,18 @@ def main():
 
     try:
         weekly = scrape_official_weekly(existing)
-        merged.update(weekly)
-        print("SUCCESS: official Baker Hughes weekly Excel parsed.")
+
+        new_date = parse_date(weekly.get("report_date"))
+        old_date = parse_date(existing.get("report_date")) if existing.get("report_date") else None
+
+        if old_date is None or new_date is None or new_date >= old_date:
+            merged.update(weekly)
+            print("SUCCESS: official Baker Hughes weekly Excel parsed.")
+        else:
+            print(
+                "STALE FALLBACK WARNING: downloaded report is older than the saved report; "
+                "keeping the newer saved weekly/state/basin data."
+            )
     except Exception as exc:
         print("OFFICIAL WEEKLY WARNING:", repr(exc))
         print("Keeping last good weekly/state/basin data.")
