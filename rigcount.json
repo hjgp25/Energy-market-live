@@ -1,25 +1,25 @@
 {
   "source": "Baker Hughes Rig Count",
-  "report_date": "September 4, 2026",
-  "state_report_date": "September 4, 2026",
-  "basin_report_date": "September 4, 2026",
-  "fetched_at": "2026-09-10T18:38:04+00:00",
+  "report_date": "September 11, 2026",
+  "state_report_date": "September 11, 2026",
+  "basin_report_date": "September 11, 2026",
+  "fetched_at": "2026-09-11T18:37:41+00:00",
   "us": {
-    "count": 588,
-    "change": 0
+    "count": 591,
+    "change": 3
   },
   "canada": {
-    "count": 204,
-    "change": -7
+    "count": 207,
+    "change": 3
   },
   "drill_for": {
     "oil": {
-      "count": 449,
-      "change": 2
+      "count": 450,
+      "change": 1
     },
     "gas": {
-      "count": 130,
-      "change": -2
+      "count": 132,
+      "change": 2
     },
     "miscellaneous": {
       "count": 9,
@@ -28,81 +28,77 @@
   },
   "trajectory": {
     "directional": {
-      "count": 42,
-      "change": -1
+      "count": 43,
+      "change": 1
     },
     "horizontal": {
-      "count": 535,
-      "change": 0
+      "count": 536,
+      "change": 1
     },
     "vertical": {
-      "count": 10,
-      "change": 0
-    },
-    "other": {
-      "count": 1,
-      "change": 1
+      "count": 12,
+      "change": 2
     }
   },
   "location": {
     "land": {
-      "count": 577,
-      "change": 1
+      "count": 581,
+      "change": 4
     },
     "offshore": {
       "count": 8,
-      "change": -1
+      "change": 0
     },
     "inland_waters": {
-      "count": 3,
-      "change": 0
+      "count": 2,
+      "change": -1
     }
   },
   "basins": [
     {
       "name": "Permian",
       "count": 268,
-      "change": 1
+      "change": 0
     },
     {
       "name": "Other",
-      "count": 100,
-      "change": 0
+      "count": 96,
+      "change": -4
     },
     {
       "name": "Haynesville",
-      "count": 56,
-      "change": -1
+      "count": 57,
+      "change": 1
     },
     {
       "name": "Eagle Ford",
-      "count": 50,
-      "change": 0
+      "count": 51,
+      "change": 1
     },
     {
       "name": "Williston",
-      "count": 27,
-      "change": 0
+      "count": 32,
+      "change": 5
     },
     {
       "name": "Marcellus",
       "count": 23,
-      "change": -1
+      "change": 0
     },
     {
       "name": "Cana Woodford",
       "count": 21,
-      "change": 1
+      "change": 0
     },
     {
       "name": "Granite Wash",
       "count": 18,
-      "change": -1
+      "change": 0
     },
     {
       "name": "DJ-Niobrara",
       "count": 11,
-      "change": 1
+      "change": 0
     },
     {
       "name": "Utica",
@@ -129,14 +125,14 @@
     {
       "code": "TX",
       "name": "Texas",
-      "count": 283,
+      "count": 284,
       "change": 1
     },
     {
       "code": "NM",
       "name": "New Mexico",
-      "count": 95,
-      "change": 0
+      "count": 92,
+      "change": -3
     },
     {
       "code": "OK",
@@ -147,20 +143,20 @@
     {
       "code": "LA",
       "name": "Louisiana",
-      "count": 35,
-      "change": -1
+      "count": 36,
+      "change": 1
     },
     {
       "code": "ND",
       "name": "North Dakota",
-      "count": 24,
-      "change": 0
+      "count": 28,
+      "change": 4
     },
     {
       "code": "PA",
       "name": "Pennsylvania",
       "count": 15,
-      "change": -1
+      "change": 0
     },
     {
       "code": "WY",
@@ -172,7 +168,7 @@
       "code": "CO",
       "name": "Colorado",
       "count": 13,
-      "change": 1
+      "change": 0
     },
     {
       "code": "UT",
@@ -201,14 +197,14 @@
     {
       "code": "CA",
       "name": "California",
-      "count": 7,
-      "change": 0
+      "count": 6,
+      "change": -1
     },
     {
       "code": "MT",
       "name": "Montana",
-      "count": 3,
-      "change": 0
+      "count": 4,
+      "change": 1
     },
     {
       "code": "NV",
@@ -229,8 +225,8 @@
       "change": 0
     }
   ],
-  "official_report_url": "https://rigcount.bakerhughes.com/static-files/2da8181e-4b1c-4f75-9ad8-44854f4fc106",
-  "previous_report_date": "August 28, 2026",
+  "official_report_url": "https://rigcount.bakerhughes.com/static-files/ac9a8c23-3a35-4a0c-88d3-d8678af2f5c6",
+  "previous_report_date": "September 4, 2026",
   "international": {
     "last_count": "August 2026",
     "count": 1102,
