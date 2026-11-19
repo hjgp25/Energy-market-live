@@ -1,87 +1,92 @@
 {
   "source": "Baker Hughes Rig Count",
-  "report_date": "October 2, 2026",
-  "state_report_date": "October 2, 2026",
-  "basin_report_date": "October 2, 2026",
-  "fetched_at": "2026-11-18T01:43:12+00:00",
+  "report_date": "November 13, 2026",
+  "state_report_date": "November 13, 2026",
+  "basin_report_date": "November 13, 2026",
+  "fetched_at": "2026-11-19T01:18:37+00:00",
   "us": {
-    "count": 598,
-    "change": -1
+    "count": 601,
+    "change": -3
   },
   "canada": {
-    "count": 216,
-    "change": 8
+    "count": 233,
+    "change": 10
   },
   "drill_for": {
-    "oil": {
-      "count": 456,
+    "miscellaneous": {
+      "count": 11,
       "change": 1
     },
-    "gas": {
-      "count": 133,
-      "change": -2
-    },
-    "miscellaneous": {
-      "count": 9,
+    "oil": {
+      "count": 463,
       "change": 0
+    },
+    "gas": {
+      "count": 127,
+      "change": -4
     }
   },
   "trajectory": {
+    "other": {
+      "count": 4,
+      "change": 1
+    },
     "directional": {
-      "count": 42,
-      "change": 0
+      "count": 49,
+      "change": -2
     },
     "horizontal": {
-      "count": 540,
-      "change": -1
+      "count": 527,
+      "change": -2
     },
     "vertical": {
-      "count": 15,
-      "change": 0
-    },
-    "other": {
-      "count": 1,
+      "count": 21,
       "change": 0
     }
   },
   "location": {
     "land": {
-      "count": 586,
-      "change": -2
+      "count": 587,
+      "change": -4
     },
     "offshore": {
-      "count": 10,
-      "change": 2
+      "count": 13,
+      "change": 1
     },
     "inland_waters": {
-      "count": 2,
-      "change": -1
+      "count": 1,
+      "change": 0
     }
   },
   "basins": [
     {
       "name": "Permian",
-      "count": 270,
-      "change": 0
+      "count": 275,
+      "change": 2
     },
     {
       "name": "Other",
-      "count": 101,
-      "change": 0
+      "count": 102,
+      "change": -1
     },
     {
       "name": "Haynesville",
-      "count": 56,
-      "change": 0
+      "count": 53,
+      "change": -3
     },
     {
       "name": "Eagle Ford",
-      "count": 49,
-      "change": -1
+      "count": 50,
+      "change": 0
     },
     {
       "name": "Williston",
       "count": 35,
+      "change": 0
+    },
+    {
+      "name": "Granite Wash",
+      "count": 23,
       "change": 0
     },
     {
@@ -90,18 +95,8 @@
       "change": 0
     },
     {
-      "name": "Granite Wash",
-      "count": 20,
-      "change": 0
-    },
-    {
       "name": "Cana Woodford",
-      "count": 20,
-      "change": 0
-    },
-    {
-      "name": "DJ-Niobrara",
-      "count": 10,
+      "count": 18,
       "change": 0
     },
     {
@@ -110,45 +105,45 @@
       "change": 0
     },
     {
-      "name": "Ardmore Woodford",
-      "count": 2,
-      "change": 0
-    },
-    {
-      "name": "Arkoma Woodford",
-      "count": 1,
+      "name": "DJ-Niobrara",
+      "count": 9,
       "change": 0
     },
     {
       "name": "Barnett",
-      "count": 1,
+      "count": 2,
       "change": 0
+    },
+    {
+      "name": "Ardmore Woodford",
+      "count": 1,
+      "change": -1
     }
   ],
   "states": [
     {
       "code": "TX",
       "name": "Texas",
-      "count": 278,
-      "change": -3
+      "count": 277,
+      "change": 0
     },
     {
       "code": "NM",
       "name": "New Mexico",
-      "count": 98,
-      "change": 0
+      "count": 102,
+      "change": 1
     },
     {
       "code": "OK",
       "name": "Oklahoma",
-      "count": 52,
-      "change": 0
+      "count": 49,
+      "change": -1
     },
     {
       "code": "LA",
       "name": "Louisiana",
-      "count": 36,
-      "change": 1
+      "count": 37,
+      "change": -1
     },
     {
       "code": "ND",
@@ -157,10 +152,16 @@
       "change": 0
     },
     {
+      "code": "UT",
+      "name": "Utah",
+      "count": 18,
+      "change": 0
+    },
+    {
       "code": "WY",
       "name": "Wyoming",
-      "count": 17,
-      "change": 1
+      "count": 18,
+      "change": 0
     },
     {
       "code": "PA",
@@ -169,22 +170,16 @@
       "change": 0
     },
     {
-      "code": "UT",
-      "name": "Utah",
-      "count": 15,
+      "code": "CO",
+      "name": "Colorado",
+      "count": 11,
       "change": 0
     },
     {
       "code": "AK",
       "name": "Alaska",
-      "count": 12,
-      "change": 0
-    },
-    {
-      "code": "CO",
-      "name": "Colorado",
-      "count": 12,
-      "change": 0
+      "count": 10,
+      "change": -2
     },
     {
       "code": "OH",
@@ -201,7 +196,7 @@
     {
       "code": "CA",
       "name": "California",
-      "count": 6,
+      "count": 5,
       "change": 0
     },
     {
@@ -213,6 +208,12 @@
     {
       "code": "NV",
       "name": "Nevada",
+      "count": 3,
+      "change": 0
+    },
+    {
+      "code": "OR",
+      "name": "Oregon",
       "count": 2,
       "change": 0
     },
@@ -221,19 +222,13 @@
       "name": "Michigan",
       "count": 1,
       "change": 0
-    },
-    {
-      "code": "OR",
-      "name": "Oregon",
-      "count": 1,
-      "change": 0
     }
   ],
-  "official_report_url": "https://rigcount.bakerhughes.com/static-files/07b97f18-e525-4a1a-946a-973a03b0ae79",
-  "previous_report_date": "September 25, 2026",
+  "official_report_url": "https://rigcount.bakerhughes.com/static-files/6632a48d-1e29-4927-8277-4ae395855a87",
+  "previous_report_date": "November 6, 2026",
   "international": {
-    "last_count": "Sept 2026",
-    "count": 1122,
-    "change": 20
+    "last_count": "Oct 2026",
+    "count": 1111,
+    "change": -11
   }
 }
