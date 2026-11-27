@@ -1,57 +1,57 @@
 {
   "source": "Baker Hughes Rig Count",
-  "report_date": "November 13, 2026",
-  "state_report_date": "November 13, 2026",
-  "basin_report_date": "November 13, 2026",
-  "fetched_at": "2026-11-26T02:18:56+00:00",
+  "report_date": "November 25, 2026",
+  "state_report_date": "November 25, 2026",
+  "basin_report_date": "November 25, 2026",
+  "fetched_at": "2026-11-27T02:18:14+00:00",
   "us": {
-    "count": 601,
-    "change": -3
+    "count": 607,
+    "change": 0
   },
   "canada": {
-    "count": 233,
-    "change": 10
+    "count": 229,
+    "change": -2
   },
   "drill_for": {
-    "miscellaneous": {
-      "count": 11,
-      "change": 1
-    },
     "oil": {
-      "count": 463,
-      "change": 0
+      "count": 470,
+      "change": 1
     },
     "gas": {
       "count": 127,
-      "change": -4
+      "change": -1
+    },
+    "miscellaneous": {
+      "count": 10,
+      "change": 0
     }
   },
   "trajectory": {
-    "other": {
-      "count": 4,
-      "change": 1
-    },
     "directional": {
-      "count": 49,
-      "change": -2
+      "count": 47,
+      "change": -1
     },
     "horizontal": {
-      "count": 527,
-      "change": -2
+      "count": 535,
+      "change": 1
+    },
+    "other": {
+      "count": 3,
+      "change": 0
     },
     "vertical": {
-      "count": 21,
+      "count": 22,
       "change": 0
     }
   },
   "location": {
     "land": {
-      "count": 587,
-      "change": -4
+      "count": 592,
+      "change": 1
     },
     "offshore": {
-      "count": 13,
-      "change": 1
+      "count": 14,
+      "change": -1
     },
     "inland_waters": {
       "count": 1,
@@ -61,18 +61,18 @@
   "basins": [
     {
       "name": "Permian",
-      "count": 275,
-      "change": 2
+      "count": 277,
+      "change": 0
     },
     {
       "name": "Other",
-      "count": 102,
-      "change": -1
+      "count": 105,
+      "change": 1
     },
     {
       "name": "Haynesville",
-      "count": 53,
-      "change": -3
+      "count": 54,
+      "change": -1
     },
     {
       "name": "Eagle Ford",
@@ -117,50 +117,50 @@
     {
       "name": "Ardmore Woodford",
       "count": 1,
-      "change": -1
+      "change": 0
     }
   ],
   "states": [
     {
       "code": "TX",
       "name": "Texas",
-      "count": 277,
+      "count": 278,
       "change": 0
     },
     {
       "code": "NM",
       "name": "New Mexico",
-      "count": 102,
+      "count": 104,
       "change": 1
     },
     {
       "code": "OK",
       "name": "Oklahoma",
-      "count": 49,
-      "change": -1
+      "count": 50,
+      "change": 1
     },
     {
       "code": "LA",
       "name": "Louisiana",
       "count": 37,
-      "change": -1
+      "change": -2
     },
     {
       "code": "ND",
       "name": "North Dakota",
-      "count": 31,
+      "count": 32,
       "change": 0
     },
     {
       "code": "UT",
       "name": "Utah",
-      "count": 18,
+      "count": 19,
       "change": 0
     },
     {
       "code": "WY",
       "name": "Wyoming",
-      "count": 18,
+      "count": 19,
       "change": 0
     },
     {
@@ -170,16 +170,16 @@
       "change": 0
     },
     {
-      "code": "CO",
-      "name": "Colorado",
+      "code": "AK",
+      "name": "Alaska",
       "count": 11,
       "change": 0
     },
     {
-      "code": "AK",
-      "name": "Alaska",
-      "count": 10,
-      "change": -2
+      "code": "CO",
+      "name": "Colorado",
+      "count": 11,
+      "change": 0
     },
     {
       "code": "OH",
@@ -202,13 +202,13 @@
     {
       "code": "MT",
       "name": "Montana",
-      "count": 4,
+      "count": 3,
       "change": 0
     },
     {
       "code": "NV",
       "name": "Nevada",
-      "count": 3,
+      "count": 2,
       "change": 0
     },
     {
@@ -224,8 +224,8 @@
       "change": 0
     }
   ],
-  "official_report_url": "https://rigcount.bakerhughes.com/static-files/6632a48d-1e29-4927-8277-4ae395855a87",
-  "previous_report_date": "November 6, 2026",
+  "official_report_url": "https://rigcount.bakerhughes.com/static-files/888e57d2-e273-46dc-a85b-312adf38e14b",
+  "previous_report_date": "November 20, 2026",
   "international": {
     "last_count": "Oct 2026",
     "count": 1111,
